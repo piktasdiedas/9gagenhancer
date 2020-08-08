@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+    <head>   
+        <title>Test</title>
+        <link rel="stylesheet" type="text/css" href="popup.css">
+        <script src="./popup.js"></script>
+    </head> 
+    <body>
+        <div class="container">
+            <div class="title">Settings</div>
+            <div id="optionsContainer" class="optionsContainer">
+                <div class="optionsItemsGroup">
+                    <div class="optionsItemsGroupName">
+                        Custom colors
+                    </div>
+                    <div class="optionsItem">
+                        <div class="optionsItemName">Enable custom colors</div>
+                        <div class="optionsItemContent">
+                            <input name="customColors" type="checkbox" />
+                        </div>
+                    </div>
+                    <div class="optionsItem">
+                        <div class="optionsItemName">Background</div>
+                        <div class="optionsItemContent">
+                            <input name="backgroundColor" type="color" />
+                        </div>
+                    </div>
+                    <div class="optionsItem">
+                        <div class="optionsItemName">Text</div>
+                        <div class="optionsItemContent">
+                            <input name="foregroundColor" type="color" />
+                        </div>
+                    </div>
+                </div>
+                <div class="optionsItemsGroup">
+                    <div class="optionsItemsGroupName">
+                        Video and Gif
+                    </div>
+                    <div class="optionsItem">
+                        <div class="optionsItemName">Show video (gif) controls</div>
+                        <div class="optionsItemContent">
+                            <input name="showControls" type="checkbox" />
+                        </div>
+                    </div>
+                    <div class="optionsItem">
+                        <div class="optionsItemName">Keep video muted</div>
+                        <div class="optionsItemContent">
+                            <input name="keepMuted" type="checkbox" />
+                        </div>
+                    </div>
+                </div>
+                <div class="optionsItemsGroup">
+                    <div class="optionsItemsGroupName">
+                        When boss around
+                    </div>
+                    <div class="optionsItem-fullwidth">
+                        <div class="optionsItemName">Url when in danger (if left empty shows random Wikipedia article)</div>
+                        <div class="optionsItemContent">
+                            <!-- <input name="safeUrl" type="text" /> -->
+                            <textarea name="safeUrl" rows="4"></textarea>
+                        </div>
+                    </div>
+                    <div class="optionsItem">
+                        <div class="optionsItemName">Enable triple clicking</div>
+                        <div class="optionsItemContent">
+                            <input name="enableDesperateClicks" type="checkbox" />
+                        </div>
+                    </div>
+                    <div class="optionsItem">
+                        <div class="optionsItemName">Enable distressed scrolling</div>
+                        <div class="optionsItemContent">
+                            <input name="enableDistressedScroll" type="checkbox" />
+                        </div>
+                    </div>
+                </div>
+                <div class="optionsItemsGroup optionsItemBottom">
+                    <div class="optionsControls">
+                        <button id="saveSettings">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

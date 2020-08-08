@@ -1,0 +1,32 @@
+{
+    "manifest_version": 2,
+    "name": "9Gag enhancer",
+    "description": "Allows to download images",
+    "version": "1.0.0",
+
+    "icons": {
+      "16": "images/icons/i_16.png",
+      "24": "images/icons/i_24.png",
+      "32": "images/icons/i_32.png",
+      "128": "images/icons/i_128.png"
+    },
+    "browser_action": {
+      "default_icon": {
+        "16": "images/icons/i_16.png",
+        "24": "images/icons/i_24.png",
+        "32": "images/icons/i_32.png"
+      },
+      "default_popup": "popup.html"
+    },
+    "permissions": [
+      "declarativeContent", "storage", "tabs"
+    ],
+    "content_scripts": [
+      {
+        "matches": ["https://9gag.com/*"],
+        "css": ["background.css"],
+        "js": ["background.js"]
+      }
+    ],
+    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'"
+  }
