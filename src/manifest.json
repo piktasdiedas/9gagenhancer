@@ -1,32 +1,35 @@
 {
-    "manifest_version": 2,
-    "name": "9Gag enhancer",
-    "description": "Allows to download images",
-    "version": "1.0.1",
+  "manifest_version": 2,
+  "name": "9Gag enhancer",
+  "description": "Allows to download images",
+  "version": "1.0.3",
 
-    "icons": {
+  "icons": {
+    "16": "images/icons/i_16.png",
+    "24": "images/icons/i_24.png",
+    "32": "images/icons/i_32.png",
+    "128": "images/icons/i_128.png"
+  },
+  "browser_action": {
+    "default_icon": {
       "16": "images/icons/i_16.png",
       "24": "images/icons/i_24.png",
-      "32": "images/icons/i_32.png",
-      "128": "images/icons/i_128.png"
+      "32": "images/icons/i_32.png"
     },
-    "browser_action": {
-      "default_icon": {
-        "16": "images/icons/i_16.png",
-        "24": "images/icons/i_24.png",
-        "32": "images/icons/i_32.png"
-      },
-      "default_popup": "popup.html"
-    },
-    "permissions": [
-      "declarativeContent", "storage", "tabs"
-    ],
-    "content_scripts": [
-      {
-        "matches": ["https://9gag.com/*"],
-        "css": ["background.css"],
-        "js": ["background.js"]
-      }
-    ],
-    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'"
-  }
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "storage", "tabs"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://9gag.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'"
+}

@@ -11,27 +11,10 @@ _gaq.push(['_trackPageview']);
 
 const SETTINGS_KEY = 'settings'
 const settingsKeys = ['customColors', 'backgroundColor', 'foregroundColor', 'showControls', 'keepMuted', 'safeUrl', 'enableDesperateClicks', 'enableDistressedScroll']
-const storageType = 'sync'
-
-
-const initialSettings = {
-  customColors: false,
-  backgroundColor: '#ffffff',
-  foregroundColor: '#000000',
-  showControls: true,
-  keepMuted: true,
-  safeUrl: '',
-  enableDesperateClicks: false,
-  enableDistressedScroll: false
-}
 
 
 getSettings()
   .then(settings => {
-    for (const key of settingsKeys) {
-      settings[key] = settings[key] || initialSettings[key]
-    }
-
     const containerEl = document.getElementById('optionsContainer')
 
     for (const key of settingsKeys) {
@@ -64,10 +47,6 @@ document.addEventListener('DOMContentLoaded', _ => {
   const onSave = () => {
     getSettings()
       .then(r => {
-        for (const key of settingsKeys) {
-          r[key] = r[key] || initialSettings[key]
-        }    
-    
         const containerEl = document.getElementById('optionsContainer')
 
         for (const key of settingsKeys) {
@@ -101,9 +80,8 @@ document.addEventListener('DOMContentLoaded', _ => {
 
 
 function getSettings(p) {
-  const type = p?.type || storageType
   return new Promise(function(resolve, reject) {
-    chrome.storage[type].get([SETTINGS_KEY], result => {
+    chrome.storage.sync.get([SETTINGS_KEY], result => {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.message);
         reject(chrome.runtime.lastError.message);
@@ -116,9 +94,8 @@ function getSettings(p) {
 
 
 function setSettings(value, p) {
-  const type = p?.type || storageType
   return new Promise(function(resolve, reject) {
-    chrome.storage[type].set({[SETTINGS_KEY]: value}, result => {
+    chrome.storage.sync.set({[SETTINGS_KEY]: value}, result => {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.message);
         reject(chrome.runtime.lastError.message);
