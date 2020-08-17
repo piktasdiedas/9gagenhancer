@@ -54,7 +54,6 @@ const updateThame = () => {
   }
 
   const prevColor = window.getComputedStyle(document.querySelector("#top-nav li a")).color
-  console.log(prevColor)
   let i = 0
   document.body.style.setProperty('color', foregroundColor, 'important')
 
@@ -62,7 +61,6 @@ const updateThame = () => {
   for (const el of temp) {
     el.style.setProperty('color', foregroundColor, 'important')
     i++
-    console.log(i)
   }
 
   temp = document.querySelectorAll("#top-nav li a")
@@ -176,7 +174,7 @@ const POTATO_IMGS = [
   'https://i.pinimg.com/originals/10/57/dd/1057dd4e269659a4974175909bcc54f5.png',
 
 ]
-const DISTANCE_FOR_POTATO = 1000
+const DISTANCE_FOR_POTATO = 100000
 
 let scrolledForPotatoes = 0
 let lastScrolledForPotatoes = 0
@@ -199,6 +197,7 @@ window.addEventListener('scroll', e => {
     potatoImage.style.position = 'absolute'
     potatoImage.style.width = '256px'
     potatoImage.style.height = 'auto'
+    potatoImage.style.zIndex = 9000
 
     potatoImage.style.left = `${(randomLeftPosition)}px`
     potatoImage.style.top = `${window.scrollY + window.outerHeight}px`
@@ -210,7 +209,6 @@ window.addEventListener('scroll', e => {
   }
   
   lastScrolledForPotatoes = window.scrollY
-  console.log(window.scrollY)
 })
 
 const randomize = (min, max) => {
