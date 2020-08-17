@@ -168,13 +168,51 @@ window.addEventListener('scroll', e => {
 })
 
 
+const POTATO_IMGS = [
+  'https://i.imgur.com/UjbOYTN_d.webp?maxwidth=728&fidelity=grand',
+  'https://cdn.shopify.com/s/files/1/1017/2183/t/2/assets/live-preview-potato-standing.png?11613543951065886057',
+  'https://www.spudfit.com/wp/wp-content/uploads/2020/03/Potato.H03-3.png',
+  'https://i.pinimg.com/originals/25/7b/d1/257bd19e4e08f73db001a49a732c3592.png',
+  'https://i.pinimg.com/originals/10/57/dd/1057dd4e269659a4974175909bcc54f5.png',
 
+]
+const DISTANCE_FOR_POTATO = 1000
 
+let scrolledForPotatoes = 0
+let lastScrolledForPotatoes = 0
 
-window.addEventListener('error', e =>  {
+window.addEventListener('scroll', e => {
+  if (lastScrolledForPotatoes !== 0) {
+    scrolledForPotatoes += Math.abs(lastScrolledForPotatoes - window.scrollY)
+  }
+  
+  if (scrolledForPotatoes > DISTANCE_FOR_POTATO) {
+    scrolledForPotatoes = 0
 
-  console.log(e)
+    const randomPotato = randomize(0, POTATO_IMGS.length)
+
+    var randomLeftPosition = randomize(100, window.innerWidth - 256 - 100 )
+
+    const potatoImage = document.createElement('img')
+    potatoImage.classList.add('potato')
+    potatoImage.src = POTATO_IMGS[randomPotato]
+    potatoImage.style.position = 'absolute'
+    potatoImage.style.width = '256px'
+    potatoImage.style.height = 'auto'
+
+    potatoImage.style.left = `${(randomLeftPosition)}px`
+    potatoImage.style.top = `${window.scrollY + window.outerHeight}px`
+    document.body.appendChild(potatoImage)
+
+    potatoImage.onclick = e => {
+      e.target.remove()
+    }
+  }
+  
+  lastScrolledForPotatoes = window.scrollY
+  console.log(window.scrollY)
 })
 
-/// todo: 
-/// change icon
+const randomize = (min, max) => {
+  return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + Math.ceil(min)
+}
