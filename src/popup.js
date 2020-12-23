@@ -43,6 +43,8 @@ const updatePopupColors = (settings) => {
 }
 
 document.addEventListener('DOMContentLoaded', _ => {
+  document.querySelector('.version').innerText = `v.${chrome.runtime.getManifest().version}`
+  document.querySelector('.version').href = `https://chrome.google.com/webstore/detail/${chrome.runtime.id}`
   
   const onSave = () => {
     getSettings()

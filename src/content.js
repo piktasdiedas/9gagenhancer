@@ -214,3 +214,196 @@ window.addEventListener('scroll', e => {
 const randomize = (min, max) => {
   return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + Math.ceil(min)
 }
+
+
+/** **/
+
+const injectMemefulWindowIcon = (root = document) => {
+  const controlsArray = root.querySelectorAll('.comment-box .action .lhs')
+
+  for (const controls of controlsArray) {
+    if(controls.querySelector('.enhancer-memeful-icon')) {
+      continue
+    }
+
+    const img = document.createElement('img')
+    img.src = 'https://icon-library.net/images/memes-icon/memes-icon-13.jpg'
+    img.classList.add('enhancer-memeful-icon')
+    img.width = '30'
+    img.height = '30'
+
+    controls.appendChild(img)
+  }
+}
+
+setTimeout(injectMemefulWindowIcon, 1000)
+
+document.querySelector('.post-comment').addEventListener('click', e => {
+  if(e.target.classList.contains('enhancer-memeful-icon')) {
+    const input = traverseUp(e.target, 'comment-box').querySelector('textarea')
+    showMemefulContainer(true, input)
+  } else if(traverseUp(e.target, 'comment-box')) { 
+    injectMemefulWindowIcon(traverseUp(e.target, 'comment-box'))
+  } else if(traverseUp(e.target, 'comment-entry')) { 
+    injectMemefulWindowIcon(traverseUp(e.target, 'comment-entry')?.parentNode)
+  }
+})
+document.querySelector('.post-comment').addEventListener('mouseup', e => {
+  if(e.target.classList.contains('reply')) {
+    setTimeout(() => injectMemefulWindowIcon(traverseUp(e.target, 'comment-entry')?.parentNode), 100)
+  }
+})
+
+
+let currentCommentInput = null
+const createMemefulContainer = () => {
+  const el = document.querySelector('.post-comment')
+  el.style.position = 'relative'
+
+  const div = document.createElement('div');
+  div.className = 'enhancer-container-overlay'
+
+  div.innerHTML = htmlString.trim();
+  div.querySelector('.enhancer-close').addEventListener('click', e => {
+    showMemefulContainer(false)
+  })
+
+  let searchTimeout = null
+  div.querySelector('.enhancer-search').addEventListener('keyup', e => {
+    if (e.target.value === '') {
+      return
+    }
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout)
+    }
+
+    // if 'enter' key dont wait for another key
+    const isEnter = e.keyCode === 13
+    searchTimeout = setTimeout(() => loadImages(e.target.value), isEnter ? 1 : 700)
+  })
+
+
+  div.querySelector('.enhancer-container').addEventListener('click', e => {
+    if (e.target.className.indexOf('enhancer-memeful-image-source') !== -1) {
+      const caretAt = currentCommentInput.selectionStart
+      const val = currentCommentInput.value
+      const url = e.target.src
+      const comment = val.substring(0, caretAt) + url + val.substring(caretAt)
+      currentCommentInput.value = comment
+      currentCommentInput.dispatchEvent(new Event("input"));
+      showMemefulContainer(false)
+    } else  if (e.target.className.indexOf('enhancer-suggested-tags-option') !== -1) {
+      loadImages(e.target.textContent)
+      document.querySelector('.post-comment .enhancer-container-overlay .enhancer-search input').value = e.target.textContent
+    }
+  })
+
+  el.prepend(div)
+}
+
+
+const showMemefulContainer = (show, input = null) => {
+  const container = document.querySelector('.post-comment .enhancer-container-overlay')
+  if (show) {
+    container.style.display = 'block'
+    container.querySelector('.enhancer-search').focus()
+    loadImages('')
+  } else {
+    container.style.display = 'none'
+  }
+
+  currentCommentInput = input
+}
+
+
+const traverseUp = (root, classFragment) => {
+  let el = root.parentElement
+
+  while(el !== null) {
+    if(el.className.indexOf(classFragment) !== -1)
+      break
+
+    el = el.parentElement
+  }
+
+  return el;
+}
+
+const loadImages = (search) => {
+  const imagesCont = document.querySelector('.enhancer-memeful-images')
+  const tagsCont = document.querySelector('.enhancer-suggested-tags')
+  imagesCont.innerHTML = '<h2>LOADING...</h2>'
+
+  getMemeful(search)
+  .then(data => {
+    imagesCont.innerHTML = ''
+
+    if (data['error']) {
+      imagesCont.innerHTML = `<h2>Error while fetching images. Response errror code: ${data.error}</h2>`
+      return
+    }
+
+    const tagsCounter = []
+
+    if (data.length === 0){
+      imagesCont.innerHTML = '<h2>No images for this search query.</h2>'
+      return
+    }
+
+    const imgWidth = 150;
+    for (const image of data) {
+      const img = document.createElement('img')
+      img.className = 'enhancer-memeful-image-source'
+      img.width = imgWidth
+      img.height = image.imageHeight / (image.imageWidth / imgWidth)
+  
+      img.src = image.animatedUrl
+
+      imagesCont.appendChild(img)
+
+      for (const tag of image.tags.split(',').map(tag => tag.trim())) {
+        if (tag === search) {
+          continue
+        }
+
+        if (!tagsCounter.find(t => t.name === tag)) {
+          tagsCounter.push({name: tag, count: 0})
+        }
+        tagsCounter.find(t => t.name === tag).count++
+      }
+    }
+
+    tagsCounter.sort((a, b) => b.count - a.count)
+
+    tagsCont.innerHTML = '<span class="enhancer-suggested-tags-relative">Related tags:</span>' + tagsCounter.slice(0, 50).map(t => `<span class='enhancer-suggested-tags-option'>${t.name}</span>`).join(' ')
+  })
+}
+
+const getMemeful = (tag) => {
+  let url = `https://api.codetabs.com/v1/proxy?quest=https://memeful.com/web/ajax/posts?page=1&count=${tag ? 250 : 25}&tags=${tag}`
+  return new Promise((resolve, reject) => {
+    fetch(url, {
+      method: 'GET',
+    })
+    .then(r => { return r.ok ? r.json() : { data: { error: r.status }}})
+    .then(r => { resolve(r.data) })
+    .catch(er => reject(er));
+  })
+}
+
+const htmlString = `
+<div class='enhancer-container'>
+  <div class='enhancer-head'>
+    <label class='enhancer-search'>Search: <input /></label>
+      <span class='enhancer-close'>
+        <img width='24' height='24' src='https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-close-512.png' />
+      </span>
+    <div class='enhancer-suggested-tags'></div>
+  </div>
+  <div class='enhancer-memeful-images'></div>
+</div>`
+
+
+createMemefulContainer()
+showMemefulContainer(false)
