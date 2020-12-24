@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "9Gag enhancer",
   "description": "Allows to download images",
-  "version": "1.1.1",
+  "version": "1.2",
 
   "icons": {
     "16": "images/icons/i_16.png",

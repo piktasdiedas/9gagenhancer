@@ -93,7 +93,7 @@ chrome.storage.sync.get('settings', result => {
 
 document.body.addEventListener('mousedown', (e) => {
   if (e.target.tagName = 'IMG') {
-    const  toRemove = e.target.parentElement.getElementsByTagName('source')
+    const  toRemove = e.target.parentNode.querySelectorAll('source[type="video/webm"], source[type="image/webp"]')
     for (const el of toRemove) {
       el.remove()
     }
@@ -162,6 +162,7 @@ window.addEventListener('scroll', e => {
     
     updateThame()
     updateVideo()
+    checkDownloadButtons()
   }
 })
 
@@ -237,22 +238,28 @@ const injectMemefulWindowIcon = (root = document) => {
 }
 
 setTimeout(injectMemefulWindowIcon, 1000)
+const postComment = document.querySelector('.post-comment')
 
-document.querySelector('.post-comment').addEventListener('click', e => {
-  if(e.target.classList.contains('enhancer-memeful-icon')) {
-    const input = traverseUp(e.target, 'comment-box').querySelector('textarea')
-    showMemefulContainer(true, input)
-  } else if(traverseUp(e.target, 'comment-box')) { 
-    injectMemefulWindowIcon(traverseUp(e.target, 'comment-box'))
-  } else if(traverseUp(e.target, 'comment-entry')) { 
-    injectMemefulWindowIcon(traverseUp(e.target, 'comment-entry')?.parentNode)
-  }
-})
-document.querySelector('.post-comment').addEventListener('mouseup', e => {
-  if(e.target.classList.contains('reply')) {
-    setTimeout(() => injectMemefulWindowIcon(traverseUp(e.target, 'comment-entry')?.parentNode), 100)
-  }
-})
+if(postComment) {
+  postComment.addEventListener('click', e => {
+    if(e.target.classList.contains('enhancer-memeful-icon')) {
+      const input = traverseUp(e.target, 'comment-box').querySelector('textarea')
+      showMemefulContainer(true, input)
+    } else if(traverseUp(e.target, 'comment-box')) { 
+      injectMemefulWindowIcon(traverseUp(e.target, 'comment-box'))
+    } else if(traverseUp(e.target, 'comment-entry')) { 
+      injectMemefulWindowIcon(traverseUp(e.target, 'comment-entry')?.parentNode)
+    } else if (e.target.className.indexOf('enhancer-suggested-tags-option') !== -1) {
+      loadImages(e.target.textContent)
+      document.querySelector('.post-comment .enhancer-container-overlay .enhancer-search input').value = e.target.textContent
+    }
+  })
+  postComment.addEventListener('mouseup', e => {
+    if(e.target.classList.contains('reply')) {
+      setTimeout(() => injectMemefulWindowIcon(traverseUp(e.target, 'comment-entry')?.parentNode), 100)
+    }
+  })
+}
 
 
 let currentCommentInput = null
@@ -293,9 +300,6 @@ const createMemefulContainer = () => {
       currentCommentInput.value = comment
       currentCommentInput.dispatchEvent(new Event("input"));
       showMemefulContainer(false)
-    } else  if (e.target.className.indexOf('enhancer-suggested-tags-option') !== -1) {
-      loadImages(e.target.textContent)
-      document.querySelector('.post-comment .enhancer-container-overlay .enhancer-search input').value = e.target.textContent
     }
   })
 
@@ -380,8 +384,10 @@ const loadImages = (search) => {
   })
 }
 
+const proxy = 'https://api.codetabs.com/v1/proxy?quest='
+
 const getMemeful = (tag) => {
-  let url = `https://api.codetabs.com/v1/proxy?quest=https://memeful.com/web/ajax/posts?page=1&count=${tag ? 250 : 25}&tags=${tag}`
+  let url = `${proxy}https://memeful.com/web/ajax/posts?page=1&count=${tag ? 250 : 25}&tags=${tag}`
   return new Promise((resolve, reject) => {
     fetch(url, {
       method: 'GET',
@@ -404,6 +410,51 @@ const htmlString = `
   <div class='enhancer-memeful-images'></div>
 </div>`
 
+if (document.querySelector('.post-comment')) {
+  createMemefulContainer()
+  showMemefulContainer(false)
+}
 
-createMemefulContainer()
-showMemefulContainer(false)
+
+function downloadImage(url, name) {
+  fetch(`${proxy}${url}`, {
+      method: 'GET'
+  })
+  .then(response => response.blob())
+  .then(blob => {
+      var a = document.createElement('a')
+      a.href = window.URL.createObjectURL(blob)
+      a.download = name
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+  })
+ }
+
+const checkDownloadButtons = () => {
+  var template = `<img style="width: auto;" class="enhancer-download-icon" height="30" width="30" src="https://image.flaticon.com/icons/png/512/60/60721.png">`
+
+  const posts = document.querySelectorAll('.main-wrap article')
+
+  for (const post of posts) {
+    const el = post.querySelector('.post-container a')
+    if (!el || el.querySelector('.enhancer-download-icon')){
+      continue
+    }
+
+    const dummy = document.createElement('div')
+    dummy.innerHTML = template
+
+    el.parentNode.appendChild(dummy.firstChild)
+  }
+}
+
+checkDownloadButtons()
+
+document.querySelector('.main-wrap').addEventListener('click', e => {
+  if (e.target.classList.contains('enhancer-download-icon')) {
+    const url = traverseUp(e.target, 'post-container').querySelector('picture img, video source[type="video/mp4"]').src
+    const name = url.split('/')[url.split('/').length - 1]
+    downloadImage(url, name)
+  }
+})
