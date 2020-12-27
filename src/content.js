@@ -336,6 +336,7 @@ const traverseUp = (root, classFragment) => {
 
 const loadImages = (search) => {
   const imagesCont = document.querySelector('.enhancer-memeful-images')
+  const imagesCountCont = document.querySelector('.enhancer-memeful-images-count')
   const tagsCont = document.querySelector('.enhancer-suggested-tags')
   imagesCont.innerHTML = '<h2>LOADING...</h2>'
 
@@ -350,11 +351,11 @@ const loadImages = (search) => {
 
     const tagsCounter = []
 
+    imagesCountCont.innerHTML = data.length
     if (data.length === 0){
       imagesCont.innerHTML = '<h2>No images for this search query.</h2>'
       return
     }
-
     const imgWidth = 150;
     for (const image of data) {
       const img = document.createElement('img')
@@ -385,6 +386,8 @@ const loadImages = (search) => {
 }
 
 const proxy = 'https://api.codetabs.com/v1/proxy?quest='
+const downloadIconUrl = 'https://image.flaticon.com/icons/png/512/60/60721.png'
+const spinnerUrl = 'https://cdn.shopify.com/s/files/1/2624/8830/t/36/assets/loader.gif?v=15552516830053958309'
 
 const getMemeful = (tag) => {
   let url = `${proxy}https://memeful.com/web/ajax/posts?page=1&count=${tag ? 250 : 25}&tags=${tag}`
@@ -405,6 +408,7 @@ const htmlString = `
       <span class='enhancer-close'>
         <img width='24' height='24' src='https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-close-512.png' />
       </span>
+    <div>Images found: <span class='enhancer-memeful-images-count'></span></div>
     <div class='enhancer-suggested-tags'></div>
   </div>
   <div class='enhancer-memeful-images'></div>
@@ -416,29 +420,39 @@ if (document.querySelector('.post-comment')) {
 }
 
 
-function downloadImage(url, name) {
-  fetch(`${proxy}${url}`, {
-      method: 'GET'
-  })
-  .then(response => response.blob())
-  .then(blob => {
-      var a = document.createElement('a')
-      a.href = window.URL.createObjectURL(blob)
-      a.download = name
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-  })
+function downloadImage(url, name, el) {
+  if (el.src === spinnerUrl) {
+    return
+  }
+
+  el.src = spinnerUrl
+  try {
+    fetch(`${proxy}${url}`, {
+        method: 'GET'
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        el.src = downloadIconUrl
+        var a = document.createElement('a')
+        a.href = window.URL.createObjectURL(blob)
+        a.download = name
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+    })  
+  } catch (error) {
+    el.src = downloadIconUrl
+  }
  }
 
 const checkDownloadButtons = () => {
-  var template = `<img style="width: auto;" class="enhancer-download-icon" height="30" width="30" src="https://image.flaticon.com/icons/png/512/60/60721.png">`
+  var template = `<img style="width: auto;" class="enhancer-download-icon" height="30" width="30" src='${downloadIconUrl}'>`
 
   const posts = document.querySelectorAll('.main-wrap article')
 
   for (const post of posts) {
     const el = post.querySelector('.post-container a')
-    if (!el || el.querySelector('.enhancer-download-icon')){
+    if (!el || el.parentNode.querySelector('.enhancer-download-icon')){
       continue
     }
 
@@ -455,6 +469,6 @@ document.querySelector('.main-wrap').addEventListener('click', e => {
   if (e.target.classList.contains('enhancer-download-icon')) {
     const url = traverseUp(e.target, 'post-container').querySelector('picture img, video source[type="video/mp4"]').src
     const name = url.split('/')[url.split('/').length - 1]
-    downloadImage(url, name)
+    downloadImage(url, name, e.target)
   }
 })
