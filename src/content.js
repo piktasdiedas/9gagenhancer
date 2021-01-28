@@ -220,7 +220,8 @@ const randomize = (min, max) => {
 /** **/
 
 const injectMemefulWindowIcon = (root = document) => {
-  const controlsArray = root.querySelectorAll('.comment-box .action .lhs')
+  const controlsArray = root.querySelectorAll('.comment-input-area-footer .actions-area-secondary')
+
 
   for (const controls of controlsArray) {
     if(controls.querySelector('.enhancer-memeful-icon')) {
@@ -241,12 +242,12 @@ setTimeout(injectMemefulWindowIcon, 1000)
 const postComment = document.querySelector('.post-comment')
 
 if(postComment) {
-  postComment.addEventListener('click', e => {
+  postComment.addEventListener('mouseup', e => {
     if(e.target.classList.contains('enhancer-memeful-icon')) {
-      const input = traverseUp(e.target, 'comment-box').querySelector('textarea')
+      const input = traverseUp(e.target, 'comment-composer__input-area').querySelector('textarea')
       showMemefulContainer(true, input)
-    } else if(traverseUp(e.target, 'comment-box')) { 
-      injectMemefulWindowIcon(traverseUp(e.target, 'comment-box'))
+    } else if(traverseUp(e.target, 'comment-composer__input-area')) { 
+      injectMemefulWindowIcon(traverseUp(e.target, 'comment-composer__input-area'))
     } else if(traverseUp(e.target, 'comment-entry')) { 
       injectMemefulWindowIcon(traverseUp(e.target, 'comment-entry')?.parentNode)
     } else if (e.target.className.indexOf('enhancer-suggested-tags-option') !== -1) {
@@ -255,7 +256,7 @@ if(postComment) {
     }
   })
   postComment.addEventListener('mouseup', e => {
-    if(e.target.classList.contains('reply')) {
+    if(e.target.classList.contains('reply-button')) {
       setTimeout(() => injectMemefulWindowIcon(traverseUp(e.target, 'comment-entry')?.parentNode), 100)
     }
   })
@@ -325,7 +326,7 @@ const traverseUp = (root, classFragment) => {
   let el = root.parentElement
 
   while(el !== null) {
-    if(el.className.indexOf(classFragment) !== -1)
+    if(Array.from(el.classList).some(c => c === classFragment))
       break
 
     el = el.parentElement
@@ -388,7 +389,7 @@ const loadImages = (search) => {
 const proxy = 'https://api.codetabs.com/v1/proxy?quest='
 const downloadIconUrl = 'https://image.flaticon.com/icons/png/512/60/60721.png'
 const spinnerUrl = 'https://cdn.shopify.com/s/files/1/2624/8830/t/36/assets/loader.gif?v=15552516830053958309'
-
+console.log('asdasdasdasdasdd')
 const getMemeful = (tag) => {
   let url = `${proxy}https://memeful.com/web/ajax/posts?page=1&count=${tag ? 250 : 25}&tags=${tag}`
   return new Promise((resolve, reject) => {
