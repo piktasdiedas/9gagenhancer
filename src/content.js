@@ -1,8 +1,8 @@
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = 'https://ssl.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
+// (function() {
+//   var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+//   ga.src = 'https://ssl.google-analytics.com/ga.js';
+//   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+// })();
 
 
 const SAFECLICKSTHRESHOLD = 3
@@ -229,7 +229,7 @@ const injectMemefulWindowIcon = (root = document) => {
     }
 
     const img = document.createElement('img')
-    img.src = 'https://icon-library.net/images/memes-icon/memes-icon-13.jpg'
+    img.src = 'http://icon-library.net/images/memes-icon/memes-icon-13.jpg'
     img.classList.add('enhancer-memeful-icon')
     img.width = '30'
     img.height = '30'
@@ -322,13 +322,17 @@ const showMemefulContainer = (show, input = null) => {
 }
 
 
-const traverseUp = (root, classFragment) => {
+const traverseUp = (root, classFragment, isTag) => {
   let el = root.parentElement
 
   while(el !== null) {
-    if(Array.from(el.classList).some(c => c === classFragment))
-      break
-
+    if(isTag) {
+      if(el.tagName.toLowerCase() === classFragment)
+        break
+    } else {
+      if(Array.from(el.classList).some(c => c === classFragment))
+        break
+    }
     el = el.parentElement
   }
 
@@ -389,7 +393,7 @@ const loadImages = (search) => {
 const proxy = 'https://api.codetabs.com/v1/proxy?quest='
 const downloadIconUrl = 'https://image.flaticon.com/icons/png/512/60/60721.png'
 const spinnerUrl = 'https://cdn.shopify.com/s/files/1/2624/8830/t/36/assets/loader.gif?v=15552516830053958309'
-console.log('asdasdasdasdasdd')
+
 const getMemeful = (tag) => {
   let url = `${proxy}https://memeful.com/web/ajax/posts?page=1&count=${tag ? 250 : 25}&tags=${tag}`
   return new Promise((resolve, reject) => {
@@ -447,12 +451,19 @@ function downloadImage(url, name, el) {
  }
 
 const checkDownloadButtons = () => {
-  var template = `<img style="width: auto;" class="enhancer-download-icon" height="30" width="30" src='${downloadIconUrl}'>`
+  const template = `<li class="enhancer-download-icon-container"><img class="enhancer-download-icon" height="30" width="30" src='${downloadIconUrl}'></li>`
 
   const posts = document.querySelectorAll('.main-wrap article')
 
   for (const post of posts) {
-    const el = post.querySelector('.post-container a')
+    // search for multiple elements in list view
+    let el = post.querySelector('.post-afterbar-a .share.right ul')
+
+    // if not found try searching as single post
+    if(!el) {
+      el = post.querySelector('.post-afterbar-a .share ul')
+    }
+
     if (!el || el.parentNode.querySelector('.enhancer-download-icon')){
       continue
     }
@@ -460,7 +471,7 @@ const checkDownloadButtons = () => {
     const dummy = document.createElement('div')
     dummy.innerHTML = template
 
-    el.parentNode.appendChild(dummy.firstChild)
+    el.appendChild(dummy.firstChild)
   }
 }
 
@@ -468,7 +479,7 @@ checkDownloadButtons()
 
 document.querySelector('.main-wrap').addEventListener('click', e => {
   if (e.target.classList.contains('enhancer-download-icon')) {
-    const url = traverseUp(e.target, 'post-container').querySelector('picture img, video source[type="video/mp4"]').src
+    const url = traverseUp(e.target, 'article', true).querySelector('.post-container picture img, .post-container video source[type="video/mp4"]').src
     const name = url.split('/')[url.split('/').length - 1]
     downloadImage(url, name, e.target)
   }
